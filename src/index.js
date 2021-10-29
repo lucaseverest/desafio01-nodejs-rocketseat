@@ -24,16 +24,13 @@ function checksExistsUserAccount(request, response, next) {
   return next();
 }
 
-function getToDo(tasks) {
-  // função para verificar se aquela tarefa existe, usando o id e retornando true or false
-}
-
+// Criar um usuário com name e username
 app.post("/users", (request, response) => {
-  // Criar um usuário com name e username
   const { name, username } = request.body;
 
   // verificar se usuário já existe
   const userExists = users.some((user) => user.username === username);
+
   if (userExists === true) {
     return response.status(400).json({ error: "User already exists" });
   }
@@ -69,37 +66,30 @@ app.post("/todos", checksExistsUserAccount, (request, response) => {
     created_at: new Date(),
   };
 
-  users.map((userCrud) => {
-    if (userCrud.username === user.username) {
-      userCrud.todos.push(task);
-    }
-  });
+  user.todos.push(task);
 
   return response.status(201).json(task);
 });
 
 app.put("/todos/:id", checksExistsUserAccount, (request, response) => {
   const { user } = request;
-
   const { id } = request.params;
+
   const newTitle = request.body.title;
   const newDeadline = new Date(request.body.deadline);
+
   let taskExists = false;
   let responseObject = {};
 
-  users.map((userCrud) => {
-    if (userCrud.username === user.username) {
-      userCrud.todos.map((task) => {
-        if (task.id === id) {
-          (task.title = newTitle), (task.deadline = newDeadline);
-          taskExists = true;
-          responseObject = task;
-        }
-      });
+  user.todos.map((task) => {
+    if (task.id === id) {
+      (task.title = newTitle), (task.deadline = newDeadline);
+      taskExists = true;
+      responseObject = task;
     }
   });
 
-  if (taskExists === true) {
+  if (taskExists) {
     return response.status(201).json(responseObject);
   } else {
     return response.status(404).json({ error: "Task not found" });
@@ -108,20 +98,16 @@ app.put("/todos/:id", checksExistsUserAccount, (request, response) => {
 
 app.patch("/todos/:id/done", checksExistsUserAccount, (request, response) => {
   const { user } = request;
-
   const { id } = request.params;
+
   let taskExists = false;
   let responseObject = {};
 
-  users.map((userCrud) => {
-    if (userCrud.id === user.id) {
-      userCrud.todos.map((task) => {
-        if (task.id === id) {
-          task.done = true;
-          taskExists = true;
-          responseObject = task;
-        }
-      });
+  user.todos.map((task) => {
+    if (task.id === id) {
+      task.done = true;
+      taskExists = true;
+      responseObject = task;
     }
   });
 
@@ -138,15 +124,11 @@ app.delete("/todos/:id", checksExistsUserAccount, (request, response) => {
   const { id } = request.params;
   let taskExists = false;
 
-  users.map((userCrud) => {
-    if (userCrud.id === user.id) {
-      userCrud.todos.map((task) => {
-        if (task.id === id) {
-          const taskIndex = userCrud.todos.indexOf(task);
-          userCrud.todos.splice(taskIndex, 1);
-          taskExists = true;
-        }
-      });
+  user.todos.map((task) => {
+    if (task.id === id) {
+      const taskIndex = user.todos.indexOf(task);
+      user.todos.splice(taskIndex, 1);
+      taskExists = true;
     }
   });
 
